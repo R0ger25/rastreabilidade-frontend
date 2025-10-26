@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Técnico</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        
+        <div id="dashboard-content" class="content-hidden"> 
+            
+            <header class="header">
+                <h2>Painel do Técnico de Campo</h2>
+                <div>
+                    <span id="welcome-message">Carregando...</span>
+                    <button id="logout-button">Sair</button>
+                </div>
+            </header>
+
+            <main class="form-container">
+                <h3>Registrar Novo Lote de Tora</h3>
+                <form id="tora-form">
+                    <div class="form-group">
+                        <label for="lat">Latitude</label>
+                        <input type="number" step="any" id="lat" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lon">Longitude</label>
+                        <input type="number" step="any" id="lon" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dof">Número DOF</label>
+                        <input type="text" id="dof" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="licenca">Licença Ambiental</label>
+                        <input type="text" id="licenca" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="especie">Espécie (Popular)</label>
+                        <input type="text" id="especie">
+                    </div>
+                    <div class="form-group">
+                        <label for="volume">Volume Estimado (m³)</label>
+                        <input type="number" step="0.01" id="volume" required>
+                    </div>
+                    
+                    <p id="form-message" class="form-message"></p>
+                    <button type="submit" id="tora-submit-button">Registrar Lote</button>
+                </form>
+            </main>
+
+        </div> </div> <script src="dashboard.js"></script>
+</body>
+</html>

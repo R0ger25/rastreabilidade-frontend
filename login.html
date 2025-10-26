@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Rastreabilidade</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <div class="login-container">
+        <h1>Rastreabilidade da Madeira</h1>
+        <p>Acesso ao sistema</p>
+        
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="username" required autocomplete="email" value="joao.silva@exemplo.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="password" required autocomplete="current-password" value="teste123">
+            </div>
+            
+            <p id="error-message" class="error-message"></p>
+            
+            <button type="submit" id="login-button">Entrar</button>
+        </form>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+</html>
