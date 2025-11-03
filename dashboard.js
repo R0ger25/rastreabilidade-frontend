@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // 1. "AUTH GUARD" (sem mudança)
     const token = localStorage.getItem("accessToken");
     if (!token) {
-        window.location.href = "login.html"; // Redireciona imediatamente
+        window.location.href = "index.html"; // Redireciona imediatamente
         return; 
     }
 
@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (user.role !== "tecnico") {
                 alert("Acesso Negado: Esta página é apenas para Técnicos de Campo.");
                 localStorage.removeItem("accessToken"); 
-                window.location.href = "login.html"; 
+                window.location.href = "index.html"; 
                 return; // Para a execução antes de mostrar o conteúdo
             }
             
@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Se falhar, redireciona para o login (sem mostrar conteúdo)
             localStorage.removeItem("accessToken");
             alert(error.message); // Opcional: mostrar erro antes de redirecionar
-            window.location.href = "login.html";
+            window.location.href = "index.html";
         }
     }
 
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
     logoutButton.addEventListener("click", () => {
         localStorage.removeItem("accessToken"); 
         alert("Logout realizado com sucesso.");
-        window.location.href = "login.html";
+        window.location.href = "index.html";
     });
 
     // 4. LÓGICA DO FORMULÁRIO (Registrar Tora - sem mudança)
@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
              // Se o erro for de sessão, desloga
              if (error.message.includes("Sua sessão expirou")) {
                 localStorage.removeItem("accessToken");
-                setTimeout(() => { window.location.href = "login.html"; }, 3000); // Espera 3s
+                setTimeout(() => { window.location.href = "index.html"; }, 3000); // Espera 3s
             }
         } finally {
             submitButton.disabled = false;
