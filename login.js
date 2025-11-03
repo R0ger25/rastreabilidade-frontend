@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================================================
     // ATENÇÃO: COLOQUE A URL DA SUA API DO RENDER AQUI
     // ==========================================================
-    const API_BASE_URL = "https://app-rastreabilidade.onrender.com"; 
+    const API_BASE_URL = "https://api-rastreabilidade-backend.onrender.com"; 
     // ==========================================================
 
     const loginForm = document.getElementById("login-form");

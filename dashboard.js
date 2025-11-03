@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     // ... (API_BASE_URL e outras constantes) ...
-    const API_BASE_URL = "https://app-rastreabilidade.onrender.com"; 
+    const API_BASE_URL = "https://api-rastreabilidade-backend.onrender.com"; 
     const welcomeMessage = document.getElementById("welcome-message");
     const logoutButton = document.getElementById("logout-button");
     const toraForm = document.getElementById("tora-form");
