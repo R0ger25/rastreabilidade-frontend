@@ -3,145 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Serraria - Rastreabilidade de Madeira</title>
+    <title>Dashboard Serraria - Rastreabilidade</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .user-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-logout {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .welcome-message {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .welcome-message h2 {
+            color: #059669;
+            margin-bottom: 10px;
+        }
+
+        .welcome-message p {
+            color: #6b7280;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
+    <div class="dashboard-container">
         <!-- Header -->
         <header class="header">
-            <div class="header-content">
-                <h1>🏭 Painel da Serraria</h1>
-                <div class="user-info">
-                    <span id="userName">Carregando...</span>
-                    <button onclick="logout()" class="btn-logout">Sair</button>
-                </div>
+            <div>
+                <h1>🏭 Dashboard da Serraria</h1>
+            </div>
+            <div class="user-info">
+                <span id="userName">Carregando...</span>
+                <button onclick="logout()" class="btn-logout">Sair</button>
             </div>
         </header>
 
-        <!-- Navigation Tabs -->
-        <div class="tabs">
-            <button class="tab-btn active" onclick="showTab('lotes-disponiveis')">
-                📦 Lotes de Tora Disponíveis
-            </button>
-            <button class="tab-btn" onclick="showTab('registrar-processamento')">
-                ➕ Registrar Processamento
-            </button>
-            <button class="tab-btn" onclick="showTab('meus-lotes')">
-                📋 Meus Lotes Processados
-            </button>
-        </div>
-
-        <!-- Tab: Lotes de Tora Disponíveis -->
-        <div id="lotes-disponiveis" class="tab-content active">
-            <h2>Lotes de Tora Disponíveis para Processamento</h2>
-            <div class="info-box">
-                <p>💡 <strong>Dica:</strong> Selecione um lote de tora para iniciar o processamento na serraria.</p>
-            </div>
-            
-            <div id="lotesToraList" class="lotes-grid">
-                <p class="loading">Carregando lotes de tora...</p>
-            </div>
-        </div>
-
-        <!-- Tab: Registrar Processamento -->
-        <div id="registrar-processamento" class="tab-content">
-            <h2>Registrar Novo Lote Serrado</h2>
-            
-            <div class="info-box">
-                <p>📋 Preencha as informações do processamento do lote de tora selecionado.</p>
-            </div>
-
-            <form id="formLoteSerrado" class="form-container">
-                <!-- Seleção do Lote de Tora -->
-                <div class="form-section">
-                    <h3>1. Lote de Tora de Origem</h3>
-                    <div class="form-group">
-                        <label for="loteToraOrigem">Selecione o Lote de Tora *</label>
-                        <select id="loteToraOrigem" name="id_lote_tora_origem" required>
-                            <option value="">-- Selecione um lote --</option>
-                        </select>
-                        <small id="infoLoteSelecionado" class="info-text"></small>
-                    </div>
-                </div>
-
-                <!-- Dados de Recebimento e Processamento -->
-                <div class="form-section">
-                    <h3>2. Dados de Recebimento e Processamento</h3>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="dataRecebimento">Data de Recebimento da Tora *</label>
-                            <input type="datetime-local" id="dataRecebimento" name="data_recebimento_tora" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="volumeSaida">Volume de Saída (m³) *</label>
-                            <input type="number" id="volumeSaida" name="volume_saida_m3" step="0.01" min="0.01" required>
-                            <small class="info-text">Volume de madeira serrada produzida</small>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Características do Produto -->
-                <div class="form-section">
-                    <h3>3. Características do Produto Serrado</h3>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="tipoProduto">Tipo de Produto</label>
-                            <select id="tipoProduto" name="tipo_produto">
-                                <option value="">-- Selecione --</option>
-                                <option value="Tábua">Tábua</option>
-                                <option value="Tábua Aparelhada">Tábua Aparelhada</option>
-                                <option value="Vigota">Vigota</option>
-                                <option value="Caibro">Caibro</option>
-                                <option value="Ripa">Ripa</option>
-                                <option value="Prancha">Prancha</option>
-                                <option value="Sarrafo">Sarrafo</option>
-                                <option value="Outros">Outros</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="dimensoes">Dimensões</label>
-                            <input type="text" id="dimensoes" name="dimensoes" placeholder="Ex: 2,5cm x 15cm x 3m">
-                            <small class="info-text">Espessura x Largura x Comprimento</small>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="dadosTratamento">Dados de Tratamento (Opcional)</label>
-                        <textarea id="dadosTratamento" name="dados_tratamento" rows="4" 
-                                  placeholder="Descreva os tratamentos aplicados (secagem, imunização, etc.)"></textarea>
-                    </div>
-                </div>
-
-                <!-- Botões -->
-                <div class="form-actions">
-                    <button type="button" onclick="showTab('lotes-disponiveis')" class="btn-secondary">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="btn-primary">
-                        ✅ Registrar Lote Serrado
-                    </button>
-                </div>
-            </form>
-
-            <!-- Mensagens -->
-            <div id="mensagemProcessamento" class="message" style="display: none;"></div>
-        </div>
-
-        <!-- Tab: Meus Lotes Processados -->
-        <div id="meus-lotes" class="tab-content">
-            <h2>Meus Lotes Serrados</h2>
-            <div class="info-box">
-                <p>📊 Histórico de todos os lotes que você processou na serraria.</p>
-            </div>
-            
-            <div id="meusLotesSerradosList" class="lotes-list">
-                <p class="loading">Carregando seus lotes processados...</p>
-            </div>
+        <!-- Welcome Message -->
+        <div class="welcome-message">
+            <h2>Bem-vindo ao Sistema da Serraria!</h2>
+            <p>Aqui você poderá processar lotes de tora e gerenciar a produção.</p>
+            <p><em>Em breve: funcionalidades completas...</em></p>
         </div>
     </div>
 
