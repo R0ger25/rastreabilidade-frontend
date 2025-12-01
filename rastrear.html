@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rastreabilidade - Origem da Madeira</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #1f2937;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 16px;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .timeline-item {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: relative;
+            animation: slideIn 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        .timeline-item:nth-child(1) { animation-delay: 0.1s; }
+        .timeline-item:nth-child(2) { animation-delay: 0.2s; }
+        .timeline-item:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -33px;
+            top: 30px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            border: 4px solid;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .timeline-item.tora::before {
+            border-color: #10b981;
+        }
+
+        .timeline-item.serrado::before {
+            border-color: #f59e0b;
+        }
+
+        .timeline-item.produto::before {
+            border-color: #8b5cf6;
+        }
+
+        .stage-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .stage-icon {
+            font-size: 28px;
+        }
+
+        .stage-title h2 {
+            color: #1f2937;
+            font-size: 22px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .info-item {
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 15px;
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        .map-link {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .map-link:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+            font-size: 18px;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #fecaca;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-green {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-orange {
+            background: #fed7aa;
+            color: #92400e;
+        }
+
+        .badge-purple {
+            background: #ddd6fe;
+            color: #5b21b6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌲 Rastreabilidade da Madeira</h1>
+            <p>Acompanhe a origem e todo o processo de fabricação</p>
+        </div>
+
+        <div id="conteudo">
+            <p class="loading">Carregando informações de rastreabilidade...</p>
+        </div>
+    </div>
+
+    <script>
+        // Pegar o ID do produto da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const produtoId = urlParams.get('id');
+
+        if (!produtoId) {
+            document.getElementById('conteudo').innerHTML = `
+                <div class="error">
+                    <h2>❌ ID do produto não fornecido</h2>
+                    <p>Por favor, acesse esta página através do link de rastreabilidade do produto.</p>
+                </div>
+            `;
+        } else {
+            carregarRastreabilidade(produtoId);
+        }
+
+        async function carregarRastreabilidade(id) {
+            try {
+                const response = await fetch(`https://api-rastreabilidade-backend.onrender.com/rastrear/${id}`);
+                
+                if (!response.ok) {
+                    throw new Error('Produto não encontrado');
+                }
+                
+                const dados = await response.json();
+                renderizarRastreabilidade(dados);
+                
+            } catch (error) {
+                document.getElementById('conteudo').innerHTML = `
+                    <div class="error">
+                        <h2>❌ Produto não encontrado</h2>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderizarRastreabilidade(dados) {
+            const html = `
+                <div class="timeline">
+                    <!-- Produto Acabado -->
+                    <div class="timeline-item produto">
+                        <div class="stage-title">
+                            <span class="stage-icon">📦</span>
+                            <div>
+                                <h2>Produto Acabado</h2>
+                                <span class="badge badge-purple">Etapa Final</span>
+                            </div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">ID do Produto</div>
+                                <div class="info-value">${dados.produto.id_custom}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Nome</div>
+                                <div class="info-value">${dados.produto.nome}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">SKU</div>
+                                <div class="info-value">${dados.produto.sku}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Data Fabricação</div>
+                                <div class="info-value">${formatarData(dados.produto.data_fabricacao)}</div>
+                            </div>
+                        </div>
+                        ${dados.produto.dados_acabamento ? `
+                            <div class="info-item" style="margin-top: 15px;">
+                                <div class="info-label">Acabamento</div>
+                                <div class="info-value">${dados.produto.dados_acabamento}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Lote Serrado -->
+                    ${dados.lote_serrado ? `
+                        <div class="timeline-item serrado">
+                            <div class="stage-title">
+                                <span class="stage-icon">🪚</span>
+                                <div>
+                                    <h2>Processamento na Serraria</h2>
+                                    <span class="badge badge-orange">Etapa 2</span>
+                                </div>
+                            </div>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">ID Lote Serrado</div>
+                                    <div class="info-value">${dados.lote_serrado.id_custom}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Tipo</div>
+                                    <div class="info-value">${dados.lote_serrado.tipo_produto || 'N/A'}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Dimensões</div>
+                                    <div class="info-value">${dados.lote_serrado.dimensoes || 'N/A'}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Volume</div>
+                                    <div class="info-value">${dados.lote_serrado.volume_m3} m³</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Data Processamento</div>
+                                    <div class="info-value">${formatarData(dados.lote_serrado.data_processamento)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Lote de Tora -->
+                    ${dados.lote_tora ? `
+                        <div class="timeline-item tora">
+                            <div class="stage-title">
+                                <span class="stage-icon">🌲</span>
+                                <div>
+                                    <h2>Extração da Madeira</h2>
+                                    <span class="badge badge-green">Etapa 1 - Origem</span>
+                                </div>
+                            </div>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">ID Lote Tora</div>
+                                    <div class="info-value">${dados.lote_tora.id_custom}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Espécie</div>
+                                    <div class="info-value">${dados.lote_tora.especie_popular || 'N/A'}</div>
+                                </div>
+                                ${dados.lote_tora.especie_cientifica ? `
+                                    <div class="info-item">
+                                        <div class="info-label">Nome Científico</div>
+                                        <div class="info-value"><em>${dados.lote_tora.especie_cientifica}</em></div>
+                                    </div>
+                                ` : ''}
+                                <div class="info-item">
+                                    <div class="info-label">Volume Original</div>
+                                    <div class="info-value">${dados.lote_tora.volume_m3} m³</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">DOF</div>
+                                    <div class="info-value">${dados.lote_tora.numero_dof}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Licença Ambiental</div>
+                                    <div class="info-value">${dados.lote_tora.numero_licenca}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Data Extração</div>
+                                    <div class="info-value">${formatarData(dados.lote_tora.data_registro)}</div>
+                                </div>
+                            </div>
+                            <a href="https://www.google.com/maps?q=${dados.lote_tora.coordenadas.lat},${dados.lote_tora.coordenadas.lon}" 
+                               target="_blank" 
+                               class="map-link">
+                                📍 Ver Localização no Mapa
+                            </a>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.getElementById('conteudo').innerHTML = html;
+        }
+
+        function formatarData(dataISO) {
+            const data = new Date(dataISO);
+            return data.toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+    </script>
+</body>
+</html>
