@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Fábrica - Rastreabilidade</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .user-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-logout {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #6b7280;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: #7c3aed;
+        }
+
+        .tab-btn.active {
+            color: #7c3aed;
+            border-bottom-color: #7c3aed;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .lotes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .lote-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .lote-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .lote-card h3 {
+            color: #7c3aed;
+            margin: 0 0 15px 0;
+            font-size: 18px;
+        }
+
+        .lote-card p {
+            margin: 8px 0;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .lote-card strong {
+            color: #1f2937;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #7c3aed;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .qr-code-display {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .qr-code-display a {
+            color: #7c3aed;
+            font-weight: 600;
+            word-break: break-all;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="header">
+            <div>
+                <h1>🏭 Dashboard da Fábrica</h1>
+            </div>
+            <div class="user-info">
+                <span id="userName">Carregando...</span>
+                <button onclick="logout()" class="btn-logout">Sair</button>
+            </div>
+        </header>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('lotes-serrados')">
+                📦 Lotes Serrados Disponíveis
+            </button>
+            <button class="tab-btn" onclick="showTab('fabricar')">
+                ➕ Fabricar Produto
+            </button>
+            <button class="tab-btn" onclick="showTab('produtos')">
+                📋 Meus Produtos
+            </button>
+        </div>
+
+        <!-- Tab 1: Lotes Serrados Disponíveis -->
+        <div id="lotes-serrados" class="tab-content active">
+            <h2>Lotes Serrados Disponíveis</h2>
+            <div id="lotesSerradosList" class="lotes-grid">
+                <p class="loading">Carregando lotes...</p>
+            </div>
+        </div>
+
+        <!-- Tab 2: Fabricar Produto -->
+        <div id="fabricar" class="tab-content">
+            <h2>Fabricar Novo Produto</h2>
+            
+            <div id="mensagemFabricacao" class="message"></div>
+
+            <form id="formProduto" class="form-container">
+                <div class="form-group">
+                    <label for="loteSerradoOrigem">Selecione o Lote Serrado *</label>
+                    <select id="loteSerradoOrigem" required>
+                        <option value="">-- Selecione um lote --</option>
+                    </select>
+                    <small id="infoLoteSerrado" style="color: #6b7280;"></small>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="skuProduto">SKU do Produto *</label>
+                        <input type="text" id="skuProduto" required placeholder="Ex: MOV-001">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="nomeProduto">Nome do Produto *</label>
+                        <input type="text" id="nomeProduto" required placeholder="Ex: Mesa de Jantar">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="dadosAcabamento">Dados de Acabamento (Opcional)</label>
+                    <textarea id="dadosAcabamento" rows="4" placeholder="Descreva o acabamento aplicado (verniz, lixamento, pintura, etc.)"></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary">✅ Fabricar Produto</button>
+            </form>
+        </div>
+
+        <!-- Tab 3: Meus Produtos -->
+        <div id="produtos" class="tab-content">
+            <h2>Meus Produtos Fabricados</h2>
+            <div id="produtosList" class="lotes-grid">
+                <p class="loading">Carregando produtos...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard-fabrica.js"></script>
+</body>
+</html>
