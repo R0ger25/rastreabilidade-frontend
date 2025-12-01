@@ -75,6 +75,10 @@ function showTab(tabName) {
         carregarLotesSerradosNoSelect();
     } else if (tabName === 'produtos') {
         carregarMeusProdutos();
+    } else if (tabName === 'rastrear') {
+        // Limpar resultado anterior
+        document.getElementById('resultadoRastreabilidade').innerHTML = '';
+        document.getElementById('produtoIdRastrear').value = '';
     }
 }
 
@@ -298,7 +302,7 @@ async function carregarMeusProdutos() {
                 <p><strong>Data Fabricação:</strong> ${formatarData(produto.data_fabricacao)}</p>
                 ${produto.dados_acabamento ? `<p><strong>Acabamento:</strong> ${produto.dados_acabamento}</p>` : ''}
                 <div class="qr-code-display" style="margin-top: 15px;">
-                    <a href="${produto.link_qr_code}" target="_blank">🔗 Ver Rastreabilidade</a>
+                    <a href="https://app-rastreabilidade.onrender.com/rastrear.html?id=${produto.id_lote_produto_custom}" target="_blank">🔗 Ver Rastreabilidade</a>
                 </div>
             </div>
         `).join('');
@@ -307,6 +311,176 @@ async function carregarMeusProdutos() {
         console.error('Erro:', error);
         container.innerHTML = '<p class="empty-state">Erro ao carregar produtos.</p>';
     }
+}
+
+// ===================================
+// RASTREABILIDADE
+// ===================================
+
+async function buscarRastreabilidade() {
+    const produtoId = document.getElementById('produtoIdRastrear').value.trim().toUpperCase();
+    const container = document.getElementById('resultadoRastreabilidade');
+    
+    if (!produtoId) {
+        container.innerHTML = '<p class="message error" style="display: block;">Por favor, digite o ID do produto.</p>';
+        return;
+    }
+    
+    container.innerHTML = '<p class="loading">Buscando rastreabilidade...</p>';
+    
+    try {
+        const response = await fetch(`${API_URL}/rastrear/${produtoId}`);
+        
+        if (!response.ok) {
+            throw new Error('Produto não encontrado');
+        }
+        
+        const dados = await response.json();
+        renderizarRastreabilidade(dados);
+        
+    } catch (error) {
+        console.error('Erro:', error);
+        container.innerHTML = `
+            <div class="message error" style="display: block;">
+                ❌ ${error.message}
+            </div>
+        `;
+    }
+}
+
+function renderizarRastreabilidade(dados) {
+    const container = document.getElementById('resultadoRastreabilidade');
+    
+    let html = '<div class="timeline">';
+    
+    // Produto Acabado
+    html += `
+        <div class="timeline-item produto">
+            <div class="stage-title">
+                <span class="stage-icon">📦</span>
+                <div>
+                    <h3>Produto Acabado</h3>
+                    <span class="badge badge-purple">Etapa Final</span>
+                </div>
+            </div>
+            <div class="info-row">
+                <div class="info-box">
+                    <div class="info-label">ID do Produto</div>
+                    <div class="info-value">${dados.produto.id_custom}</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-label">Nome</div>
+                    <div class="info-value">${dados.produto.nome}</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-label">SKU</div>
+                    <div class="info-value">${dados.produto.sku}</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-label">Data Fabricação</div>
+                    <div class="info-value">${formatarData(dados.produto.data_fabricacao)}</div>
+                </div>
+            </div>
+            ${dados.produto.dados_acabamento ? `
+                <div class="info-box" style="margin-top: 15px;">
+                    <div class="info-label">Acabamento</div>
+                    <div class="info-value">${dados.produto.dados_acabamento}</div>
+                </div>
+            ` : ''}
+        </div>
+    `;
+    
+    // Lote Serrado
+    if (dados.lote_serrado) {
+        html += `
+            <div class="timeline-item serrado">
+                <div class="stage-title">
+                    <span class="stage-icon">🪚</span>
+                    <div>
+                        <h3>Processamento na Serraria</h3>
+                        <span class="badge badge-orange">Etapa 2</span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-box">
+                        <div class="info-label">ID Lote Serrado</div>
+                        <div class="info-value">${dados.lote_serrado.id_custom}</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">Tipo</div>
+                        <div class="info-value">${dados.lote_serrado.tipo_produto || 'N/A'}</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">Dimensões</div>
+                        <div class="info-value">${dados.lote_serrado.dimensoes || 'N/A'}</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">Volume</div>
+                        <div class="info-value">${dados.lote_serrado.volume_m3} m³</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">Data Processamento</div>
+                        <div class="info-value">${formatarData(dados.lote_serrado.data_processamento)}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Lote de Tora
+    if (dados.lote_tora) {
+        html += `
+            <div class="timeline-item tora">
+                <div class="stage-title">
+                    <span class="stage-icon">🌲</span>
+                    <div>
+                        <h3>Extração da Madeira</h3>
+                        <span class="badge badge-green">Etapa 1 - Origem</span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-box">
+                        <div class="info-label">ID Lote Tora</div>
+                        <div class="info-value">${dados.lote_tora.id_custom}</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">Espécie</div>
+                        <div class="info-value">${dados.lote_tora.especie_popular || 'N/A'}</div>
+                    </div>
+                    ${dados.lote_tora.especie_cientifica ? `
+                        <div class="info-box">
+                            <div class="info-label">Nome Científico</div>
+                            <div class="info-value"><em>${dados.lote_tora.especie_cientifica}</em></div>
+                        </div>
+                    ` : ''}
+                    <div class="info-box">
+                        <div class="info-label">Volume Original</div>
+                        <div class="info-value">${dados.lote_tora.volume_m3} m³</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">DOF</div>
+                        <div class="info-value">${dados.lote_tora.numero_dof}</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">Licença Ambiental</div>
+                        <div class="info-value">${dados.lote_tora.numero_licenca}</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">Data Extração</div>
+                        <div class="info-value">${formatarData(dados.lote_tora.data_registro)}</div>
+                    </div>
+                </div>
+                <a href="https://www.google.com/maps?q=${dados.lote_tora.coordenadas.lat},${dados.lote_tora.coordenadas.lon}" 
+                   target="_blank" 
+                   class="map-link">
+                    📍 Ver Localização no Mapa
+                </a>
+            </div>
+        `;
+    }
+    
+    html += '</div>';
+    container.innerHTML = html;
 }
 
 // ===================================
